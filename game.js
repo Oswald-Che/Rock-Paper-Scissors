@@ -1,65 +1,101 @@
-// function for computer choices
+//function to select computer choice
 function computerPlay(){
-    let a = Math.random()
-     if(a < 1/3) return "rock" 
-    else if (1/3 < a && a < 2/3) return "paper" 
-    else return "scissors" 
+    let play = Math.random()
+    if(play < 1/3) return "rock" 
+    else if (1/3 < play && play < 2/3) return "paper" 
+    else return "scissors"
 }
-
-function playRound(playerSelection , computerSelection ){
-    if(playerSelection === "rock" && computerSelection === "scissors") return "You win! Rock beats Scissors" ;
-    else if (playerSelection === "paper" && computerSelection === "rock") return "You win! Paper cover Rock";
-    else if(playerSelection === "scissors" && computerSelection === "paper") return "You win! Scissors cut Paper";
-    else if (playerSelection === computerSelection) return "Draw";
-    else if (playerSelection === "scissors" && computerSelection === "rock") return "You Lose! Can't beat Rock";
-    else if(playerSelection === "rock" && computerSelection === "paper") return "You Lose! Paper destroys Rock";
-    else if (playerSelection === "paper" && computerSelection === "scissors") return "You Lose! Scissors slices Paper";
-    else return "Wrong input choices are Rock, Paper or Scissors";
-   
+// removing computer's choice highlight
+function transitionend(e){
+    if (e.propertyName !== 'transform') return;
+    e.target.classList.remove('highlight');
 }
-let playerCount = 0
-let computerCount = 0
-let count
-let draw = 0
-function gameInfo(a){
-    if(a==0) return prompt("Round 1\n Enter Rock, Paper or Scissors").toLowerCase();
-     else if(a==1) return prompt("Round 2 \nEnter Rock, Paper or Scissors").toLowerCase();   
-    else if(a==2) return prompt("Round 3 \nEnter Rock, Paper or Scissors").toLowerCase();
-    else if(a==3) return prompt("Round 4\nEnter Rock, Paper or Scissors").toLowerCase();
-    else return  prompt("Round 5\nEnter Rock, Paper or Scissors").toLowerCase();
+//function to play a Round 
+  function playRound(){
+        let c
+      if(this.getAttribute('id') == 'rock') c = 'rock'
+        else if(this.getAttribute('id') == 'scissors') c = 'scissors'
+       else if(this.getAttribute('id') == 'paper') c = 'paper'
+    let playerSelection = c
+    let computerSelection = computerPlay()
+    const info = document.querySelector('.info')
+    if(playerSelection === "rock" && computerSelection === "scissors") info.textContent = "You Win! Rock beats Scissors" ;
+    else if (playerSelection === "paper" && computerSelection === "rock")info.textContent = "You Win! Paper cover Rock";
+    else if(playerSelection === "scissors" && computerSelection === "paper")info.textContent = "You Win! Scissors cut Paper";
+    else if (playerSelection === computerSelection) info.textContent = "Draw!!!";
+    else if (playerSelection === "scissors" && computerSelection === "rock") info.textContent = "You Lose! Can't beat Rock";
+    else if(playerSelection === "rock" && computerSelection === "paper") info.textContent = "You Lose! Paper destroys Rock";
+    else if (playerSelection === "paper" && computerSelection === "scissors") info.textContent = "You Lose! Scissors slices Paper";
+    else return
+    //highlight computer's choice
+    const highlight = document.querySelector(`#com${computerSelection}`)
+    highlight.classList.add('highlight')
+ }
+ function game(){
+    const transition = document.querySelectorAll('#computerBox .box')
+    transition.forEach(box => box.addEventListener('transitionend' , transitionend))
+    const choice = document.querySelectorAll('#playerBox .box')
+    choice.forEach(box => box.addEventListener('click' , playRound)) 
+    const playResult = document.querySelector('.playresult')  
+    const comResult = document.querySelector('.comresult')
+    const info = document.querySelector(".info")
+    //code to record and display score
+    if ( info.textContent.slice(0 , 7) == "You Win") {
+         playerCount++
+         playResult.textContent = playerCount
     }
-function game(n){
-for(let i = 0; i < n && n<6; i++){
-const playerSelection = gameInfo(i)
-const computerSelection = computerPlay()
-console.log("computer plays " + computerSelection)
-console.log("You play " + playerSelection)
-console.log(playRound(playerSelection , computerSelection) )
-count = playRound(playerSelection , computerSelection).slice(0 , 7)
-alert(playRound(playerSelection , computerSelection))
-if ( count == "You win") playerCount +=  1
-else if ( count == "Draw") draw += 1
-else computerCount = computerCount + 1
-}
-if(playerCount > computerCount) {
-    alert(`Congratulations!!! You won!! \n Player score-${playerCount}/${n} \
-    Computer score-${computerCount}/${n} Draws-${draw}/${n}` )
-    console.log(`Congratulations!!! You won!\n Player score-${playerCount}/${n} \
-    Computer score-${computerCount}/${n} Draws-${draw}/${n}`)
-}
-else if (count == undefined){
-     alert("Input 5 or less")
-    console.log("Input 5 or less")}
-else if (playerCount < computerCount){
-     alert(`You lost! Better luck next \n Player score-${playerCount}/${n} \
-     Computer score-${computerCount}/${n} Draws-${draw}/${n}`) 
-    console.log(`You lost! Better luck next \n Player score-${playerCount}/${n} \
-    Computer score-${computerCount}/${n} Draws-${draw}/${n}`)}
-else {
-    alert(`You drew \n Player score-${playerCount}/${n} \
-    Computer score-${computerCount}/${n} Draws-${draw}/${n}`)
-    console.log(`You drew \n Player score-${playerCount}/${n} \
-    Computer score-${computerCount}/${n} Draws-${draw}/${n}`)}
-}
-let x = parseInt(prompt("Input number of rounds \n Maximum 5"))
-game(x)
+    else if (info.textContent.slice(0 , 8) == "You Lose") {
+        computerCount++
+        comResult.textContent = computerCount
+    }
+    //code to end and restart game
+    const end = document.querySelector("#end")
+    let finalEnd = function() {
+        choice.forEach(box => box.removeEventListener('click' , playRound))
+        playerBox.removeEventListener('click' , game)
+        info.textContent = "GAME OVER!"
+        const button = document.createElement("button")
+        button.classList.add('button')
+        const btn = document.querySelector('#btn')
+        button.textContent = "Play Again"
+        btn.appendChild(button)
+        button.addEventListener('click' , () => {
+            window.location.reload()
+        })
+    }
+    
+    if(playerCount == 5) {
+        finalEnd()
+        end.textContent = "Congratulations!!! You Are The Winner."
+    }
+      else if( computerCount == 5){
+        finalEnd()
+        end.textContent = "You have been Defeated, Better luck Next time."
+    }
+ }
+
+
+    let playerCount = 0 
+   let computerCount = 0
+ const playerBox = document.querySelector('#playerBox')
+ playerBox.addEventListener('click' , game)
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
